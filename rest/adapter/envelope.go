@@ -13,3 +13,7 @@ type Meta struct {
 type Data struct {
 	Tasks []Task `json:"tasks"`
 }
+
+type Request struct {
+	Task `json:"task"`
+}

@@ -10,7 +10,7 @@ import (
 
 func NewRouter(taskController *controller.TaskController) *gin.Engine {
 	router := gin.Default()
-	api := router.Group("/api", middleware.Response)
+	api := router.Group("/api", middleware.Request, middleware.Response)
 	api.GET("/tasks", controller.Wrapper(taskController.GetAll))
 	api.GET("/tasks/:task_id", controller.Wrapper(taskController.GetByID))
 	api.POST("/tasks", controller.Wrapper(taskController.Create))

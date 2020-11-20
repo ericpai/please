@@ -2,6 +2,7 @@ package task
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"gorm.io/gorm"
@@ -12,9 +13,14 @@ const (
 	BackendLinux   = "linux"
 )
 
+var (
+	ErrInvalidParam = errors.New("非法字段")
+	ErrNotFound     = errors.New("未找到")
+)
+
 type PO struct {
 	gorm.Model
-	Address     string
+	Address     string `gorm:"unique"`
 	User        string
 	Password    string
 	SourcePath  string
@@ -38,4 +44,6 @@ type Model interface {
 	GetAll(ctx context.Context) ([]PO, error)
 	GetByID(ctx context.Context, id int) (PO, error)
 	Delete(ctx context.Context, id int) error
+	Insert(ctx context.Context, v PO) (PO, error)
+	Update(ctx context.Context, id int, v PO) (PO, error)
 }

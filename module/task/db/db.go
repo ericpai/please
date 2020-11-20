@@ -12,7 +12,9 @@ type defaultDB struct {
 }
 
 func New(gormDB *gorm.DB) task.DB {
-	gormDB.AutoMigrate(new(task.PO))
+	if err := gormDB.AutoMigrate(new(task.PO)); err != nil {
+		panic(err.Error())
+	}
 	return &defaultDB{gormDB: gormDB}
 }
 
@@ -34,7 +36,7 @@ func (d *defaultDB) SelectAll(ctx context.Context) ([]task.PO, error) {
 
 func (d *defaultDB) SelectByID(ctx context.Context, id uint) (task.PO, error) {
 	var po task.PO
-	result := d.gormDB.WithContext(ctx).Find(&po)
+	result := d.gormDB.WithContext(ctx).First(&po)
 	return po, result.Error
 }
 

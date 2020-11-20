@@ -7,11 +7,12 @@ import (
 
 const (
 	KeyResponse = "response"
+	KeyRequest  = "request"
 )
 
 func Response(c *gin.Context) {
+	resp := new(adapter.Response)
+	c.Set(KeyResponse, resp)
 	c.Next()
-	envelopeObj, _ := c.Get(KeyResponse)
-	envelope := envelopeObj.(*adapter.Response)
-	c.JSON(envelope.Meta.Code, envelope)
+	c.JSON(resp.Meta.Code, resp)
 }

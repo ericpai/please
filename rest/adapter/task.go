@@ -29,3 +29,16 @@ func TaskModelToExternal(p task.PO) Task {
 		UpdatedTime: p.UpdatedTime.Unix(),
 	}
 }
+
+func TaskExternalToModel(p Task) task.PO {
+	return task.PO{
+		Address:    p.Address,
+		User:       p.User,
+		Password:   p.Password,
+		SourcePath: p.SourcePath,
+		DestPath:   p.DestPath,
+		Backend:    p.Backend,
+		Succeed:    p.Succeed,
+		Enabled:    p.Enabled,
+	}
+}
