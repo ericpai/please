@@ -47,7 +47,6 @@ func (d *defaultModel) Insert(ctx context.Context, v task.PO) (task.PO, error) {
 	return d.taskDB.Insert(ctx, v)
 }
 func (d *defaultModel) Update(ctx context.Context, id int, v task.PO) (task.PO, error) {
-	v.UpdatedTime = time.Now()
 	if err := d.validate(v); err != nil {
 		return v, err
 	}

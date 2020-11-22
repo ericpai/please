@@ -13,7 +13,7 @@ var cronjob = cron.New()
 
 func Init(c *dig.Container) error {
 	return c.Invoke(func(taskModel task.Model, workerModel worker.Model) error {
-		if _, err := cronjob.AddFunc("0 7 * * *", func() {
+		if _, err := cronjob.AddFunc("* * * * *", func() {
 			RemoteCopy(taskModel, workerModel)
 		}); err != nil {
 			return err

@@ -32,6 +32,10 @@ type PO struct {
 	UpdatedTime time.Time
 }
 
+func (PO) TableName() string {
+	return "tasks"
+}
+
 type DB interface {
 	Insert(ctx context.Context, v PO) (PO, error)
 	Update(ctx context.Context, newV PO) (PO, error)
