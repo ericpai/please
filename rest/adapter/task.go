@@ -1,8 +1,13 @@
 package adapter
 
-import "github.com/ericpai/please/module/task"
+import (
+	"strconv"
+
+	"github.com/ericpai/please/module/task"
+)
 
 type Task struct {
+	ID          string `json:"id"`
 	Address     string `json:"address"`
 	User        string `json:"user"`
 	Password    string `json:"password"`
@@ -17,6 +22,7 @@ type Task struct {
 
 func TaskModelToExternal(p task.PO) Task {
 	return Task{
+		ID:          strconv.Itoa(int(p.ID)),
 		Address:     p.Address,
 		User:        p.User,
 		Password:    p.Password,
