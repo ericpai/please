@@ -1,5 +1,6 @@
 import { red, green } from "@material-ui/core/colors";
 import { createMuiTheme } from "@material-ui/core/styles";
+import { zhCN } from "@material-ui/core/locale";
 
 // A custom theme for this app
 const theme = createMuiTheme({
@@ -26,6 +27,6 @@ const theme = createMuiTheme({
       main: red[700],
     },
   },
-});
+}, zhCN);
 
 export default theme;

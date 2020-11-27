@@ -7,6 +7,8 @@ import TableCell from "@material-ui/core/TableCell";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import TextField from "@material-ui/core/TextField";
+import TablePagination from "@material-ui/core/TablePagination";
+import TableContainer from "@material-ui/core/TableContainer";
 import Button from "@material-ui/core/Button";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import SearchIcon from "@material-ui/icons/Search";
@@ -34,6 +36,8 @@ const TaskTable: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [visibleTasks, setVisibleTasks] = useState<Task[]>([]);
   const [searchedValue, setSearchedValue] = useState<string>("");
+  const [page, setPage] = React.useState(0);
+  const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
   useEffect(() => {
     if (!loading) {
@@ -63,6 +67,15 @@ const TaskTable: React.FC = () => {
 
   const onNotify = () => {
     setLoading(true);
+  };
+
+  const handleChangePage = (event: any, newPage: number) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event: any) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
   };
 
   return (
@@ -100,26 +113,38 @@ const TaskTable: React.FC = () => {
           </Button>
         </Grid>
       </Grid>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>ID</TableCell>
-            <TableCell>地址</TableCell>
-            <TableCell>系统</TableCell>
-            <TableCell>启用状态</TableCell>
-            <TableCell>上次执行结果</TableCell>
-            <TableCell>上次执行时间</TableCell>
-            <TableCell align="center">操作</TableCell>
-            <TableCell align="center">详细信息</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {visibleTasks &&
-            visibleTasks.map((task: Task) => (
-              <Row key={task.id} task={task} onNotify={onNotify}></Row>
-            ))}
-        </TableBody>
-      </Table>
+      <TableContainer>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>ID</TableCell>
+              <TableCell>地址</TableCell>
+              <TableCell>系统</TableCell>
+              <TableCell>启用状态</TableCell>
+              <TableCell>上次执行结果</TableCell>
+              <TableCell>上次执行时间</TableCell>
+              <TableCell align="center">操作</TableCell>
+              <TableCell align="center">详细信息</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {visibleTasks &&
+              visibleTasks.map((task: Task) => (
+                <Row key={task.id} task={task} onNotify={onNotify}></Row>
+              ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <TablePagination
+        rowsPerPageOptions={[10, 20, 50]}
+        colSpan={12}
+        count={tasks.length}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        component="div"
+        onChangePage={handleChangePage}
+        onChangeRowsPerPage={handleChangeRowsPerPage}
+      />
     </React.Fragment>
   );
 };
