@@ -21,7 +21,12 @@ import Box from "@material-ui/core/Box";
 import IconButton from "@material-ui/core/IconButton";
 import { useDispatch } from "react-redux";
 import { AlertState, openAlert } from "../../reducer/alert";
-import { Task } from "../../Types";
+import {
+  SingleTaskState,
+  openSingleTask,
+  closeSingleTask,
+} from "../../reducer/task";
+import { Task, Request, Response } from "../../Types";
 import { humanizedDatetime } from "../../Utils";
 import { useSnackbar } from "notistack";
 
@@ -51,6 +56,11 @@ const Row: React.FC<Props> = (props: Props) => {
   const [open, setOpen] = React.useState(false);
   const dispatch = useDispatch();
   const { enqueueSnackbar } = useSnackbar();
+
+  const formatSchedule = (sche: string) => {
+    const parts = sche.split(" ");
+    return `${parts[1]} 时 ${parts[0]} 分`;
+  };
 
   const onDelete = (taskId: string) => {
     const newState: AlertState = {
@@ -84,6 +94,48 @@ const Row: React.FC<Props> = (props: Props) => {
         onNotify();
       });
   };
+
+  const onUpdate = (task: Task) => {
+    const newState: SingleTaskState = {
+      task: task,
+      open: true,
+      onConfirm: (t: Task) => {
+        handleUpdate(t);
+      },
+    };
+    dispatch(openSingleTask(newState));
+  };
+
+  const handleUpdate = (task: Task) => {
+    const req: Request = {
+      task: task,
+    };
+    fetch(`/api/tasks/${task.id}`, {
+      method: "PATCH",
+      body: JSON.stringify(req),
+    })
+      .then((response) => {
+        return response.json();
+      })
+      .then((resp: Response) => {
+        if (resp.meta.code !== 201) {
+          enqueueSnackbar(resp.meta.message, {
+            variant: "error",
+          });
+        } else {
+          enqueueSnackbar(`修改成功`, {
+            variant: "success",
+          });
+          dispatch(closeSingleTask());
+          onNotify();
+        }
+      })
+      .catch((reason) => {
+        enqueueSnackbar(`请求失败：${reason.toString()}`, {
+          variant: "error",
+        });
+      });
+  };
   return (
     <React.Fragment>
       <TableRow key={task.id} className={classes.root}>
@@ -103,6 +155,7 @@ const Row: React.FC<Props> = (props: Props) => {
             <PlayArrow className={classes.success}></PlayArrow>
           )}
         </TableCell>
+        <TableCell>{formatSchedule(task.schedule)}</TableCell>
         <TableCell>
           {task.succeed ? (
             <ClearIcon className={classes.error}></ClearIcon>
@@ -110,9 +163,15 @@ const Row: React.FC<Props> = (props: Props) => {
             <CheckIcon className={classes.success}></CheckIcon>
           )}
         </TableCell>
-        <TableCell>{humanizedDatetime(task.updatedTime)}</TableCell>
+        <TableCell>
+          {humanizedDatetime(task.updatedTime ? task.updatedTime : 0)}
+        </TableCell>
         <TableCell align="center">
-          <IconButton aria-label="edit" className={classes.success}>
+          <IconButton
+            aria-label="edit"
+            className={classes.success}
+            onClick={() => onUpdate(task)}
+          >
             <EditIcon />
           </IconButton>
           <IconButton
@@ -149,7 +208,7 @@ const Row: React.FC<Props> = (props: Props) => {
                 </Typography>
                 <Typography variant="body1" component="p">
                   创建时间：
-                  {humanizedDatetime(task.createdTime)}
+                  {humanizedDatetime(task.createdTime ? task.createdTime : 0)}
                 </Typography>
               </Paper>
             </Box>

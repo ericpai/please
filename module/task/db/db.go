@@ -24,7 +24,7 @@ func (d *defaultDB) Insert(ctx context.Context, v task.PO) (task.PO, error) {
 }
 
 func (d *defaultDB) Update(ctx context.Context, v task.PO) (task.PO, error) {
-	result := d.gormDB.WithContext(ctx).Save(&v)
+	result := d.gormDB.WithContext(ctx).Updates(&v)
 	return v, result.Error
 }
 
@@ -36,7 +36,7 @@ func (d *defaultDB) SelectAll(ctx context.Context) ([]task.PO, error) {
 
 func (d *defaultDB) SelectByID(ctx context.Context, id uint) (task.PO, error) {
 	var po task.PO
-	result := d.gormDB.WithContext(ctx).First(&po)
+	result := d.gormDB.WithContext(ctx).First(&po, id)
 	return po, result.Error
 }
 

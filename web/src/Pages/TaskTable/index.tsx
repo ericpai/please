@@ -16,7 +16,14 @@ import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import Divider from "@material-ui/core/Divider";
 import { useSnackbar } from "notistack";
-import { Task, Response } from "../../Types";
+import { Task, Request, Response } from "../../Types";
+import TaskDialog from "../../Components/TaskDialog";
+import { useDispatch } from "react-redux";
+import {
+  SingleTaskState,
+  openSingleTask,
+  closeSingleTask,
+} from "../../reducer/task";
 import Row from "./Row";
 
 const useStyles = makeStyles((theme) => ({
@@ -35,8 +42,8 @@ const TaskTable: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [visibleTasks, setVisibleTasks] = useState<Task[]>([]);
-  const [searchedValue, setSearchedValue] = useState<string>("");
   const [page, setPage] = React.useState(0);
+  const dispatch = useDispatch();
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
   useEffect(() => {
@@ -78,8 +85,62 @@ const TaskTable: React.FC = () => {
     setPage(0);
   };
 
+  const handleSearchValueChange = (event: any) => {
+    let newTasks: Task[] = [];
+    for (let i = 0; i < tasks.length; i++) {
+      if (tasks[i].address.includes(event.target.value)) {
+        newTasks.push(tasks[i]);
+      }
+    }
+    setVisibleTasks(newTasks);
+    setPage(0);
+  };
+
+  const onCreate = () => {
+    const newState: SingleTaskState = {
+      task: undefined,
+      open: true,
+      onConfirm: (t: Task) => {
+        handleCreate(t);
+      },
+    };
+    dispatch(openSingleTask(newState));
+  };
+
+  const handleCreate = (task: Task) => {
+    const req: Request = {
+      task: task,
+    };
+    fetch(`/api/tasks`, {
+      method: "POST",
+      body: JSON.stringify(req),
+    })
+      .then((response) => {
+        return response.json();
+      })
+      .then((resp: Response) => {
+        if (resp.meta.code !== 201) {
+          enqueueSnackbar(resp.meta.message, {
+            variant: "error",
+          });
+        } else {
+          enqueueSnackbar(`添加成功`, {
+            variant: "success",
+          });
+          dispatch(closeSingleTask());
+          onNotify();
+        }
+      })
+      .catch((reason) => {
+        enqueueSnackbar(`请求失败：${reason.toString()}`, {
+          variant: "error",
+        });
+      });
+  };
+
   return (
     <React.Fragment>
+      <TaskDialog />
       <Typography component="h2" variant="h6" color="primary" gutterBottom>
         任务列表
       </Typography>
@@ -93,6 +154,7 @@ const TaskTable: React.FC = () => {
             variant="outlined"
             size="small"
             fullWidth
+            onChange={handleSearchValueChange}
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
@@ -108,6 +170,7 @@ const TaskTable: React.FC = () => {
             variant="contained"
             color="primary"
             className={classes.newBtn}
+            onClick={onCreate}
           >
             添加
           </Button>
@@ -121,6 +184,7 @@ const TaskTable: React.FC = () => {
               <TableCell>地址</TableCell>
               <TableCell>系统</TableCell>
               <TableCell>启用状态</TableCell>
+              <TableCell>执行计划</TableCell>
               <TableCell>上次执行结果</TableCell>
               <TableCell>上次执行时间</TableCell>
               <TableCell align="center">操作</TableCell>
@@ -129,16 +193,18 @@ const TaskTable: React.FC = () => {
           </TableHead>
           <TableBody>
             {visibleTasks &&
-              visibleTasks.map((task: Task) => (
-                <Row key={task.id} task={task} onNotify={onNotify}></Row>
-              ))}
+              visibleTasks
+                .slice(rowsPerPage * page, rowsPerPage * (page + 1))
+                .map((task: Task) => (
+                  <Row key={task.id} task={task} onNotify={onNotify}></Row>
+                ))}
           </TableBody>
         </Table>
       </TableContainer>
       <TablePagination
         rowsPerPageOptions={[10, 20, 50]}
         colSpan={12}
-        count={tasks.length}
+        count={visibleTasks ? visibleTasks.length : 0}
         rowsPerPage={rowsPerPage}
         page={page}
         component="div"

@@ -26,6 +26,7 @@ type PO struct {
 	SourcePath  string
 	DestPath    string
 	Backend     string
+	Schedule    string
 	Succeed     bool
 	Enabled     bool
 	CreatedTime time.Time

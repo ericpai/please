@@ -13,6 +13,7 @@ type Task struct {
 	Password    string `json:"password"`
 	SourcePath  string `json:"sourcePath"`
 	DestPath    string `json:"destPath"`
+	Schedule    string `json:"schedule"`
 	Backend     string `json:"backend"`
 	Succeed     bool   `json:"succeed"`
 	Enabled     bool   `json:"enabled"`
@@ -29,6 +30,7 @@ func TaskModelToExternal(p task.PO) Task {
 		SourcePath:  p.SourcePath,
 		DestPath:    p.DestPath,
 		Backend:     p.Backend,
+		Schedule:    p.Schedule,
 		Succeed:     p.Succeed,
 		Enabled:     p.Enabled,
 		CreatedTime: p.CreatedTime.Unix(),
@@ -44,6 +46,7 @@ func TaskExternalToModel(p Task) task.PO {
 		SourcePath: p.SourcePath,
 		DestPath:   p.DestPath,
 		Backend:    p.Backend,
+		Schedule:   p.Schedule,
 		Succeed:    p.Succeed,
 		Enabled:    p.Enabled,
 	}

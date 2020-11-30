@@ -6,17 +6,19 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/ericpai/please/module/schedule"
 	"github.com/ericpai/please/module/task"
 	"github.com/ericpai/please/rest/adapter"
 	"github.com/gin-gonic/gin"
 )
 
 type TaskController struct {
-	taskModel task.Model
+	taskModel     task.Model
+	scheduleModel schedule.Model
 }
 
-func NewTaskController(taskModel task.Model) *TaskController {
-	return &TaskController{taskModel: taskModel}
+func NewTaskController(taskModel task.Model, scheduleModel schedule.Model) *TaskController {
+	return &TaskController{taskModel: taskModel, scheduleModel: scheduleModel}
 }
 
 func (t *TaskController) GetAll(c *gin.Context, req *adapter.Request, resp *adapter.Response) {
@@ -61,6 +63,11 @@ func (t *TaskController) Create(c *gin.Context, req *adapter.Request, resp *adap
 		resp.Meta.Message = fmt.Sprintf("内部错误: %s", err.Error())
 		return
 	}
+	if err = t.scheduleModel.Update(int(newPO.ID), newPO.Schedule); err != nil {
+		resp.Meta.Code = http.StatusInternalServerError
+		resp.Meta.Message = fmt.Sprintf("内部错误: %s", err.Error())
+		return
+	}
 	resp.Data.Tasks = append(resp.Data.Tasks, adapter.TaskModelToExternal(newPO))
 	resp.Meta.Code = http.StatusCreated
 }
@@ -87,18 +94,23 @@ func (t *TaskController) Update(c *gin.Context, req *adapter.Request, resp *adap
 	reqPO := adapter.TaskExternalToModel(req.Task)
 	oldPO.Address = reqPO.Address
 	oldPO.Backend = reqPO.Backend
-	oldPO.CreatedTime = reqPO.CreatedTime
 	oldPO.Password = reqPO.Password
 	oldPO.SourcePath = reqPO.SourcePath
 	oldPO.DestPath = reqPO.DestPath
 	oldPO.Enabled = reqPO.Enabled
 	oldPO.User = reqPO.User
+	oldPO.Schedule = reqPO.Schedule
 	newPO, err := t.taskModel.Update(c.Request.Context(), id, oldPO)
 	if errors.Is(err, task.ErrInvalidParam) {
 		resp.Meta.Code = http.StatusUnprocessableEntity
 		resp.Meta.Message = err.Error()
 		return
 	} else if err != nil {
+		resp.Meta.Code = http.StatusInternalServerError
+		resp.Meta.Message = fmt.Sprintf("内部错误: %s", err.Error())
+		return
+	}
+	if err = t.scheduleModel.Update(int(newPO.ID), newPO.Schedule); err != nil {
 		resp.Meta.Code = http.StatusInternalServerError
 		resp.Meta.Message = fmt.Sprintf("内部错误: %s", err.Error())
 		return
@@ -117,6 +129,11 @@ func (t *TaskController) Delete(c *gin.Context, req *adapter.Request, resp *adap
 	}
 
 	if err = t.taskModel.Delete(c.Request.Context(), id); err != nil {
+		resp.Meta.Code = http.StatusInternalServerError
+		resp.Meta.Message = fmt.Sprintf("内部错误: %s", err.Error())
+		return
+	}
+	if err = t.scheduleModel.Update(int(id), ""); err != nil {
 		resp.Meta.Code = http.StatusInternalServerError
 		resp.Meta.Message = fmt.Sprintf("内部错误: %s", err.Error())
 		return

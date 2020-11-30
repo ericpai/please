@@ -2,13 +2,15 @@ export interface Task {
   id: string;
   address: string;
   user: string;
+  password: string;
   sourcePath: string;
   destPath: string;
   backend: string;
-  succeed: boolean;
+  schedule: string;
+  succeed?: boolean;
   enabled: boolean;
-  createdTime: number;
-  updatedTime: number;
+  createdTime?: number;
+  updatedTime?: number;
 }
 
 export interface Request {
