@@ -13,10 +13,11 @@ import (
 
 func NewRouter(taskController *controller.TaskController) *gin.Engine {
 	router := gin.Default()
-	router.StaticFile("/", "web/build/index.html")
-	if err := filepath.Walk("web/build", func(path string, info os.FileInfo, err error) error {
+	prefix := filepath.Join("web", "build")
+	router.StaticFile("/", filepath.Join(prefix, "index.html"))
+	if err := filepath.Walk(prefix, func(path string, info os.FileInfo, err error) error {
 		if !info.IsDir() {
-			p := strings.TrimPrefix(path, "web/build")
+			p := strings.ReplaceAll(strings.TrimPrefix(path, prefix), "\\", "/")
 			log.Printf("Register static file with path: %s[%s]\n", p, path)
 			router.StaticFile(p, path)
 		}

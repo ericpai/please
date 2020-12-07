@@ -59,5 +59,6 @@ func New(taskModel task.Model, workerModel worker.Model) (schedule.Model, error)
 			return nil, nil
 		}
 	}
+	m.cronJobs.Start()
 	return m, nil
 }
