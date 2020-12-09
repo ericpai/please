@@ -150,17 +150,17 @@ const Row: React.FC<Props> = (props: Props) => {
         </TableCell>
         <TableCell>
           {task.enabled ? (
-            <Stop className={classes.error}></Stop>
-          ) : (
             <PlayArrow className={classes.success}></PlayArrow>
+          ) : (
+            <Stop className={classes.error}></Stop>
           )}
         </TableCell>
         <TableCell>{formatSchedule(task.schedule)}</TableCell>
         <TableCell>
           {task.succeed ? (
-            <ClearIcon className={classes.error}></ClearIcon>
-          ) : (
             <CheckIcon className={classes.success}></CheckIcon>
+          ) : (
+            <ClearIcon className={classes.error}></ClearIcon>
           )}
         </TableCell>
         <TableCell>
