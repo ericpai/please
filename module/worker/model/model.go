@@ -22,7 +22,7 @@ func (d *windowsModel) Copyfile(ctx context.Context, workCtx worker.Context) err
 	ctx, cancel := context.WithTimeout(ctx, time.Hour)
 	defer cancel()
 	sourcePath := strings.Replace(workCtx.SourcePath, ":", "$", 1)
-	out, err := exec.CommandContext(ctx, "copy.bat", workCtx.Address, workCtx.User, workCtx.Password, sourcePath, workCtx.DestPath).Output()
+	out, err := exec.CommandContext(ctx, "copy.bat", workCtx.Address, workCtx.User, workCtx.Password, sourcePath, time.Now().Format("20060102")+"-"+workCtx.Address).Output()
 	if err != nil {
 		return err
 	}

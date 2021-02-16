@@ -24,7 +24,7 @@ func (d *defaultDB) Insert(ctx context.Context, v task.PO) (task.PO, error) {
 }
 
 func (d *defaultDB) Update(ctx context.Context, v task.PO) (task.PO, error) {
-	result := d.gormDB.WithContext(ctx).Updates(&v)
+	result := d.gormDB.WithContext(ctx).Select("*").Updates(v)
 	return v, result.Error
 }
 
