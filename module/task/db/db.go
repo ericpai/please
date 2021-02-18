@@ -41,5 +41,5 @@ func (d *defaultDB) SelectByID(ctx context.Context, id uint) (task.PO, error) {
 }
 
 func (d *defaultDB) Delete(ctx context.Context, id uint) error {
-	return d.gormDB.WithContext(ctx).Delete(new(task.PO), id).Error
+	return d.gormDB.Unscoped().WithContext(ctx).Delete(new(task.PO), id).Error
 }
